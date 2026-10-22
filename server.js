@@ -25,7 +25,7 @@ const PRODUCT = {
   id: "demo-mug",
   name: "Minimal Ceramic Mug",
   description: "A simple everyday mug.",
-  amount: "10.00",
+  amount: "1.00",
   currency: "AED",
   image:
     "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1000&q=85"
