@@ -28,25 +28,20 @@ buyButton.addEventListener("click", async () => {
 
   try {
     // The backend sets the product and price.
-    const response = await fetch("/api/checkout", {
-      method: "POST"
-    });
-
+    const response = await fetch("/api/checkout", { method: "POST" });
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.error || "Could not create checkout.");
     }
 
-    if (!data.checkoutUrl ||
-        !data.checkoutUrl.startsWith("https://")) {
+    if (!data.checkoutUrl || !data.checkoutUrl.startsWith("https://")) {
       throw new Error("Nomod did not return a valid checkout URL.");
     }
 
-    sessionStorage.setItem(
-      "nomodDemoReferenceId",
-      data.referenceId
-    );
+    // Remember the order so the success page can verify it later.
+    sessionStorage.setItem("nomodDemoReferenceId", data.referenceId);
+    localStorage.setItem("nomodDemoCheckoutId", data.checkoutId);
 
     // Open the real Nomod-hosted checkout.
     window.location.assign(data.checkoutUrl);

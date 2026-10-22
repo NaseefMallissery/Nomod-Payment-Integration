@@ -1,6 +1,6 @@
-const statusIcon = document.getElementById("status-icon");
 const statusTitle = document.getElementById("status-title");
 const statusText = document.getElementById("status-text");
+const statusNote = document.getElementById("status-note");
 const statusDetails = document.getElementById("status-details");
 
 const params = new URLSearchParams(window.location.search);
@@ -8,35 +8,50 @@ const referenceId =
   params.get("reference_id") ||
   sessionStorage.getItem("nomodDemoReferenceId");
 
-function showStatus(status, message) {
-  if (status === "paid") {
-    statusIcon.textContent = "✓";
-    statusTitle.textContent = "Payment successful";
-    statusText.textContent =
-      "Nomod confirmed that this checkout is paid.";
-    return;
+const STATES = {
+  paid: {
+    title: "All done, thank you very much!",
+    text: "Your payment was successful and confirmed by Nomod.",
+    note: "A receipt will be sent to the email you entered at checkout."
+  },
+  cancelled: {
+    title: "Checkout cancelled",
+    text: "No payment was taken.",
+    note: "You can go back to the shop and try again whenever you like."
+  },
+  expired: {
+    title: "Checkout expired",
+    text: "This checkout session is no longer valid.",
+    note: "Please start a new checkout from the shop."
+  },
+  pending: {
+    title: "Checking your payment…",
+    text: "Hang tight while we confirm the latest status with Nomod.",
+    note: "This page updates automatically. Please don't close it."
+  },
+  unknown: {
+    title: "We couldn't find this order",
+    text: "Something went wrong while looking up your payment.",
+    note: "If you were charged, please contact the store with your order reference."
   }
+};
 
-  if (status === "cancelled") {
-    statusIcon.textContent = "↩";
-    statusTitle.textContent = "Checkout cancelled";
-    statusText.textContent =
-      "The checkout was cancelled. You can return to the product and try again.";
-    return;
-  }
+function showStatus(status, message, amountText) {
+  const s = STATES[status] || STATES.pending;
+  document.body.dataset.state = STATES[status] ? status : "pending";
 
-  if (status === "expired") {
-    statusIcon.textContent = "⌛";
-    statusTitle.textContent = "Checkout expired";
-    statusText.textContent =
-      "This checkout session has expired. Start a new checkout.";
-    return;
-  }
-
-  statusIcon.textContent = "…";
-  statusTitle.textContent = "Payment not confirmed yet";
+  statusTitle.textContent = s.title;
   statusText.textContent =
-    message || "Checking the latest status with Nomod...";
+    status === "pending" || status === "unknown"
+      ? message || s.text
+      : s.text;
+  statusNote.textContent = s.note;
+
+  if (referenceId) {
+    statusDetails.textContent =
+      `Order reference: ${referenceId}` +
+      (amountText ? ` · ${amountText}` : "");
+  }
 }
 
 async function checkPaymentStatus() {
@@ -45,25 +60,33 @@ async function checkPaymentStatus() {
     return;
   }
 
-  statusDetails.textContent = `Order reference: ${referenceId}`;
+  const checkoutId = localStorage.getItem("nomodDemoCheckoutId") || "";
 
   try {
     const response = await fetch(
-      `/api/orders/${encodeURIComponent(referenceId)}/status`
+      `/api/orders/${encodeURIComponent(referenceId)}/status` +
+        `?checkoutId=${encodeURIComponent(checkoutId)}`
     );
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(
-        data.message || data.error || "Could not verify payment."
-      );
+      // Order truly unknown: stop retrying and show the message.
+      if (response.status === 404) {
+        showStatus("unknown", data.message);
+        return;
+      }
+      throw new Error(data.message || data.error || "Could not verify payment.");
     }
 
-    showStatus(data.status, data.message);
+    const amountText =
+      data.amount && data.currency
+        ? `${data.currency} ${Number(data.amount).toFixed(2)}`
+        : "";
 
-    // The session may still be in "created" state.
-    // Check again instead of incorrectly showing success.
+    showStatus(data.status, data.message, amountText);
+
+    // Still "created"? Check again instead of showing success too early.
     if (data.status === "pending") {
       setTimeout(checkPaymentStatus, 3000);
     }

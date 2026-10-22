@@ -6,59 +6,151 @@
   <title>Payment Result | Studio Goods</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    .result-card {
-      max-width: 540px;
-      margin: 80px auto;
-      padding: 35px 25px;
+    :root {
+      --brand-a: #9b7bf7;
+      --brand-b: #7a56e0;
+      --brand-soft: #e6dcfb;
+      --pop: #f27cf0;
+      --title: #1f2166;
+      --text: #6b7280;
+    }
+
+    .result {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
       text-align: center;
-      background: white;
-      border: 1px solid var(--line);
     }
 
-    .result-icon {
-      font-size: 42px;
-      margin-bottom: 15px;
-      color: var(--green);
+    .illustration {
+      width: 240px;
+      height: 240px;
+      margin: 0 auto 8px;
     }
 
-    .result-card h1 {
-      font-size: 34px;
+    .illustration svg { width: 100%; height: 100%; }
+
+    /* Only the symbol for the current state is shown */
+    .sym { display: none; }
+    body[data-state="pending"] .sym-pending,
+    body[data-state="paid"] .sym-paid,
+    body[data-state="cancelled"] .sym-cancelled,
+    body[data-state="expired"] .sym-expired,
+    body[data-state="unknown"] .sym-cancelled { display: inline; }
+
+    body[data-state="pending"] .sym-pending { animation: pulse 1.2s infinite; }
+    @keyframes pulse { 50% { opacity: 0.35; } }
+
+    .result h1 {
+      font-family: Arial, sans-serif;
+      font-size: clamp(30px, 8vw, 40px);
+      line-height: 1.15;
+      letter-spacing: -1px;
+      color: var(--title);
+      margin: 24px 0 16px;
     }
 
-    .result-card p {
-      color: var(--muted);
+    .result .lead {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--title);
+      margin: 0 0 24px;
+    }
+
+    .divider {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 24px 0;
+    }
+
+    .result .note {
+      font-size: 14px;
       line-height: 1.7;
-    }
-
-    .result-card a {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 14px 20px;
-      background: var(--green);
-      color: white;
+      color: var(--text);
+      margin: 0;
     }
 
     #status-details {
-      font-size: 11px;
+      font-size: 12px;
+      color: var(--text);
       overflow-wrap: anywhere;
+      margin-top: 16px;
     }
+
+    .btn {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 15px 28px;
+      border-radius: 10px;
+      background: var(--brand-b);
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .btn:hover { background: #6844c9; }
   </style>
 </head>
-<body>
+<body data-state="pending">
   <header class="navbar">
     <a href="/" class="logo">studio<span>goods</span></a>
     <span class="demo-label">PAYMENT DEMO</span>
   </header>
 
-  <main class="result-card">
-    <div id="status-icon" class="result-icon">…</div>
-    <p class="eyebrow">CHECKOUT RESULT</p>
-    <h1 id="status-title">Verifying payment</h1>
-    <p id="status-text">
-      Checking the latest checkout status with Nomod...
+  <main class="result">
+    <div class="illustration" aria-hidden="true">
+      <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="var(--brand-a)"/>
+            <stop offset="1" stop-color="var(--brand-b)"/>
+          </linearGradient>
+        </defs>
+        <circle cx="120" cy="115" r="110" fill="url(#g)"/>
+        <circle cx="36" cy="150" r="11" fill="var(--pop)"/>
+        <circle cx="205" cy="62" r="5" fill="var(--pop)"/>
+        <circle cx="215" cy="95" r="10" fill="var(--pop)"/>
+        <!-- receipt -->
+        <path d="M80 50 q8 -8 16 0 t16 0 t16 0 t16 0 t16 0 V205
+                 q-8 8 -16 0 t-16 0 t-16 0 t-16 0 t-16 0 Z"
+              fill="#fff"/>
+        <rect x="98" y="150" width="64" height="7" rx="3.5" fill="var(--brand-soft)"/>
+        <rect x="108" y="165" width="44" height="7" rx="3.5" fill="var(--brand-soft)"/>
+
+        <g fill="none" stroke="var(--brand-b)" stroke-width="9"
+           stroke-linecap="round" stroke-linejoin="round">
+          <!-- paid: check -->
+          <path class="sym sym-paid" d="M104 108 l16 16 l30 -34"/>
+          <!-- cancelled / unknown: cross -->
+          <path class="sym sym-cancelled" d="M108 92 l34 34 M142 92 l-34 34"/>
+          <!-- expired: clock -->
+          <g class="sym sym-expired">
+            <circle cx="125" cy="108" r="24"/>
+            <path d="M125 94 v14 l10 6"/>
+          </g>
+        </g>
+        <!-- pending: dots -->
+        <g class="sym sym-pending" fill="var(--brand-b)">
+          <circle cx="104" cy="108" r="7"/>
+          <circle cx="125" cy="108" r="7"/>
+          <circle cx="146" cy="108" r="7"/>
+        </g>
+      </svg>
+    </div>
+
+    <h1 id="status-title">Checking your payment…</h1>
+    <p class="lead" id="status-text">
+      Hang tight while we confirm the latest status with Nomod.
+    </p>
+
+    <hr class="divider">
+
+    <p class="note" id="status-note">
+      This page updates automatically. Please don't close it.
     </p>
     <p id="status-details"></p>
-    <a href="/">Back to product</a>
+
+    <a class="btn" href="/">Back to shop</a>
   </main>
 
   <script src="result.js"></script>

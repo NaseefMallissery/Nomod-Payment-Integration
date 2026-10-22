@@ -6,12 +6,17 @@ const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Public address of your site. On Vercel set BASE_URL in
+// Project Settings > Environment Variables, e.g.
+// https://nomod-payment-integration.vercel.app  (no trailing slash)
 const BASE_URL = (
   process.env.BASE_URL || `http://localhost:${PORT}`
 ).replace(/\/$/, "");
 
-const API_KEY = process.env.NOMOD_API_KEY;
-console.log("Key length:", API_KEY?.length, "| starts with:", API_KEY?.slice(0, 8), "| ends with:", API_KEY?.slice(-4));
+const API_KEY =
+  process.env.NOMOD_API_KEY || process.env.NOMOD_HOSTED_CHECKOUT_API_KEY;
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -26,7 +31,8 @@ const PRODUCT = {
     "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1000&q=85"
 };
 
-// Demo storage only. Use a database in a real application.
+// Demo storage only. On serverless hosts (Vercel) this can be empty on the
+// next request, so the status route also accepts the checkoutId from the browser.
 const orders = new Map();
 
 app.get("/api/product", (req, res) => {
@@ -38,12 +44,17 @@ app.post("/api/checkout", async (req, res) => {
   try {
     if (!API_KEY) {
       return res.status(500).json({
-        error: "Nomod API key is missing from .env"
+        error: "Nomod API key is missing from the environment variables"
       });
     }
 
     const referenceId =
       `demo-${Date.now()}-${crypto.randomBytes(3).toString("hex")}`;
+
+    // All three outcomes return to success.html, which asks the backend
+    // for the real status. BASE_URL must be your public address.
+    const returnUrl =
+      `${BASE_URL}/success.html?reference_id=${encodeURIComponent(referenceId)}`;
 
     const payload = {
       reference_id: referenceId,
@@ -61,29 +72,23 @@ app.post("/api/checkout", async (req, res) => {
           net_amount: PRODUCT.amount
         }
       ],
-      success_url:
-        `${BASE_URL}/success.html?reference_id=${encodeURIComponent(referenceId)}`,
-      failure_url:
-        `${BASE_URL}/success.html?reference_id=${encodeURIComponent(referenceId)}`,
-      cancelled_url:
-        `${BASE_URL}/success.html?reference_id=${encodeURIComponent(referenceId)}`,
+      success_url: returnUrl,
+      failure_url: returnUrl,
+      cancelled_url: returnUrl,
       metadata: {
         product_id: PRODUCT.id,
         demo: "true"
       }
     };
 
-    const response = await fetch(
-      "https://api.nomod.com/v1/checkout",
-      {
-        method: "POST",
-        headers: {
-          "X-API-KEY": API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }
-    );
+    const response = await fetch("https://api.nomod.com/v1/checkout", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
     const data = await response.json().catch(() => ({}));
 
@@ -104,7 +109,6 @@ app.post("/api/checkout", async (req, res) => {
       });
     }
 
-    // Save the checkout ID against our own order reference.
     orders.set(referenceId, {
       referenceId,
       checkoutId: data.id,
@@ -122,9 +126,7 @@ app.post("/api/checkout", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      error: "Unable to start checkout."
-    });
+    res.status(500).json({ error: "Unable to start checkout." });
   }
 });
 
@@ -137,17 +139,19 @@ app.get("/api/orders/:referenceId/status", async (req, res) => {
       });
     }
 
-    const order = orders.get(req.params.referenceId);
+    const referenceId = req.params.referenceId;
+    const order = orders.get(referenceId);
+    const checkoutId = order?.checkoutId || req.query.checkoutId;
 
-    if (!order) {
+    if (!checkoutId) {
       return res.status(404).json({
         status: "unknown",
-        message: "Order not found. The demo server may have restarted."
+        message: "Order not found. Please start a new checkout."
       });
     }
 
     const response = await fetch(
-      `https://api.nomod.com/v1/checkout/${encodeURIComponent(order.checkoutId)}`,
+      `https://api.nomod.com/v1/checkout/${encodeURIComponent(checkoutId)}`,
       {
         headers: {
           "X-API-KEY": API_KEY,
@@ -166,27 +170,20 @@ app.get("/api/orders/:referenceId/status", async (req, res) => {
       });
     }
 
-    // Nomod documents checkout statuses: created, cancelled, expired, paid.
+    // Nomod checkout statuses: created, cancelled, expired, paid.
     const providerStatus =
-      typeof data.status === "string"
-        ? data.status.toLowerCase()
-        : "unknown";
+      typeof data.status === "string" ? data.status.toLowerCase() : "unknown";
 
     let status = "pending";
-
-    if (providerStatus === "paid") {
-      status = "paid";
-    } else if (providerStatus === "cancelled") {
-      status = "cancelled";
-    } else if (providerStatus === "expired") {
-      status = "expired";
-    }
+    if (providerStatus === "paid") status = "paid";
+    else if (providerStatus === "cancelled") status = "cancelled";
+    else if (providerStatus === "expired") status = "expired";
 
     res.json({
-      referenceId: order.referenceId,
+      referenceId,
       status,
-      amount: data.amount ?? order.amount,
-      currency: data.currency ?? order.currency,
+      amount: data.amount ?? PRODUCT.amount,
+      currency: data.currency ?? PRODUCT.currency,
       providerStatus,
       verifiedByBackend: true
     });
@@ -199,9 +196,12 @@ app.get("/api/orders/:referenceId/status", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at ${BASE_URL}`);
-  if (!API_KEY) {
-    console.warn("WARNING: NOMOD_API_KEY is missing in .env");
-  }
-});
+// Vercel imports the app; locally we start the server ourselves.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running at ${BASE_URL}`);
+    if (!API_KEY) console.warn("WARNING: Nomod API key is missing");
+  });
+}
+
+module.exports = app;
