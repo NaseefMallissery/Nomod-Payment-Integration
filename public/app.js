@@ -1,4 +1,3 @@
-
 const buyButton = document.getElementById("buy-button");
 const buttonLabel = document.getElementById("button-label");
 const errorMessage = document.getElementById("error-message");

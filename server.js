@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 
 const express = require("express");
@@ -11,8 +10,8 @@ const BASE_URL = (
   process.env.BASE_URL || `http://localhost:${PORT}`
 ).replace(/\/$/, "");
 
-const API_KEY = process.env.NOMOD_HOSTED_CHECKOUT_API_KEY;
-
+const API_KEY = process.env.NOMOD_API_KEY;
+console.log("Key length:", API_KEY?.length, "| starts with:", API_KEY?.slice(0, 8), "| ends with:", API_KEY?.slice(-4));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -24,7 +23,7 @@ const PRODUCT = {
   amount: "10.00",
   currency: "AED",
   image:
-    "https://images.unsplash.com/photo-1514228742587-6b1558fCCA3d?auto=format&fit=crop&w=1000&q=85"
+    "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=1000&q=85"
 };
 
 // Demo storage only. Use a database in a real application.
@@ -202,4 +201,7 @@ app.get("/api/orders/:referenceId/status", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running at ${BASE_URL}`);
+  if (!API_KEY) {
+    console.warn("WARNING: NOMOD_API_KEY is missing in .env");
+  }
 });

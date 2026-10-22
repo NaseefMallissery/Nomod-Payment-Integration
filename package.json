@@ -1,6 +1,5 @@
-
 {
-  "name": "nomod-product-checkout-demo",
+  "name": "nomod-payment-demo",
   "version": "1.0.0",
   "private": true,
   "main": "server.js",
@@ -9,10 +8,7 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2"
-  },
-  "engines": {
-    "node": ">=18"
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3"
   }
 }

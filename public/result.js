@@ -1,4 +1,3 @@
-
 const statusIcon = document.getElementById("status-icon");
 const statusTitle = document.getElementById("status-title");
 const statusText = document.getElementById("status-text");
