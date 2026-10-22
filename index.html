@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Goods | Product</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/" class="logo">studio<span>goods</span></a>
+    <span class="demo-label">PAYMENT DEMO</span>
+  </header>
+
+  <main class="container">
+    <p class="eyebrow">SMALL THINGS, MADE BETTER</p>
+    <h1>Everyday essentials.<br><em>Thoughtfully chosen.</em></h1>
+    <p class="subtitle">A sample store demonstrating Nomod checkout.</p>
+
+    <section class="product">
+      <div class="product-image">
+        <img id="product-image"
+          src="https://images.unsplash.com/photo-1514228742587-6b1558fCCA3d?auto=format&fit=crop&w=1000&q=85"
+          alt="Ceramic mug">
+      </div>
+
+      <div class="product-details">
+        <p class="eyebrow">STUDIO GOODS / HOME</p>
+        <h2 id="product-name">Minimal Ceramic Mug</h2>
+        <p id="product-description">A simple everyday mug.</p>
+
+        <p class="price" id="product-price">AED 10.00</p>
+
+        <div class="detail">
+          <span>Quantity</span>
+          <strong>1</strong>
+        </div>
+        <div class="detail">
+          <span>Payment</span>
+          <strong>Secure checkout by Nomod</strong>
+        </div>
+
+        <button id="buy-button">
+          <span id="button-label">Buy now</span>
+          <span>↗</span>
+        </button>
+
+        <p class="secure-note">
+          You will continue to Nomod's hosted checkout.
+        </p>
+        <p id="error-message" class="error" role="alert"></p>
+      </div>
+    </section>
+
+    <section class="steps">
+      <div><strong>01 — Start</strong><p>Create a checkout session.</p></div>
+      <div><strong>02 — Pay</strong><p>Complete payment on Nomod.</p></div>
+      <div><strong>03 — Verify</strong><p>Check the result with your backend.</p></div>
+    </section>
+  </main>
+
+  <footer>STUDIO GOODS <span>Demo storefront · Not a real store</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>

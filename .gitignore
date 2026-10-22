@@ -1,0 +1,112 @@
+
+# ==============================
+# Dependencies
+# ==============================
+node_modules/
+.pnp/
+.pnp.js
+
+# ==============================
+# Build output
+# ==============================
+dist/
+build/
+out/
+
+# ==============================
+# Environment variables
+# ==============================
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# ==============================
+# Logs
+# ==============================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==============================
+# Testing and coverage
+# ==============================
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ==============================
+# Cache
+# ==============================
+.cache/
+.parcel-cache/
+.vite/
+.eslintcache
+.stylelintcache
+
+# ==============================
+# Operating system files
+# ==============================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# ==============================
+# IDE and editor settings
+# ==============================
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+*.swp
+*.swo
+*.swn
+*.sublime-workspace
+
+# ==============================
+# Temporary files
+# ==============================
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.orig
+*.old
+
+# ==============================
+# TypeScript build files (if used)
+# ==============================
+*.tsbuildinfo
+
+# ==============================
+# Optional package manager files
+# ==============================
+.npm/
+.yarn/*
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/
+!.yarn/versions/
+
+# ==============================
+# Local deployment files
+# ==============================
+.vercel/
+.netlify/
+
+# ==============================
+# Generated files
+# ==============================
+*.min.js
+*.min.css

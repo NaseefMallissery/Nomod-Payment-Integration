@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Result | Studio Goods</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .result-card {
+      max-width: 540px;
+      margin: 80px auto;
+      padding: 35px 25px;
+      text-align: center;
+      background: white;
+      border: 1px solid var(--line);
+    }
+
+    .result-icon {
+      font-size: 42px;
+      margin-bottom: 15px;
+      color: var(--green);
+    }
+
+    .result-card h1 {
+      font-size: 34px;
+    }
+
+    .result-card p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .result-card a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 14px 20px;
+      background: var(--green);
+      color: white;
+    }
+
+    #status-details {
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <a href="/" class="logo">studio<span>goods</span></a>
+    <span class="demo-label">PAYMENT DEMO</span>
+  </header>
+
+  <main class="result-card">
+    <div id="status-icon" class="result-icon">…</div>
+    <p class="eyebrow">CHECKOUT RESULT</p>
+    <h1 id="status-title">Verifying payment</h1>
+    <p id="status-text">
+      Checking the latest checkout status with Nomod...
+    </p>
+    <p id="status-details"></p>
+    <a href="/">Back to product</a>
+  </main>
+
+  <script src="result.js"></script>
+</body>
+</html>
