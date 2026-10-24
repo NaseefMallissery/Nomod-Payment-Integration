@@ -15,7 +15,7 @@
   <main class="container">
     <p class="eyebrow">SMALL THINGS, MADE BETTER</p>
     <h1>Everyday essentials.<br><em>Thoughtfully chosen.</em></h1>
-    <p class="subtitle">A sample store demonstrating Nomod checkout.</p>
+    <p class="subtitle">A sample store demonstrating Nomod and Stripe checkout.</p>
 
     <section class="product">
       <div class="product-image">
@@ -29,7 +29,7 @@
         <h2 id="product-name">Minimal Ceramic Mug</h2>
         <p id="product-description">A simple everyday mug.</p>
 
-        <p class="price" id="product-price">AED 1.00</p>
+        <p class="price" id="product-price">AED 10.00</p>
 
         <div class="detail">
           <span>Quantity</span>
@@ -37,16 +37,23 @@
         </div>
         <div class="detail">
           <span>Payment</span>
-          <strong>Secure checkout by Nomod</strong>
+          <strong>Secure checkout by Nomod or Stripe</strong>
         </div>
 
-        <button id="buy-button">
-          <span id="button-label">Buy now</span>
-          <span>↗</span>
-        </button>
+        <div class="pay-buttons">
+          <button id="buy-button" class="pay-btn pay-nomod" type="button">
+            <span id="button-label">Pay with Nomod</span>
+            <span>↗</span>
+          </button>
+
+          <button id="stripe-button" class="pay-btn pay-stripe" type="button">
+            <span id="stripe-label">Pay with Stripe</span>
+            <span>↗</span>
+          </button>
+        </div>
 
         <p class="secure-note">
-          You will continue to Nomod's hosted checkout.
+          You will continue to the hosted checkout of the provider you choose.
         </p>
         <p id="error-message" class="error" role="alert"></p>
       </div>
@@ -54,7 +61,7 @@
 
     <section class="steps">
       <div><strong>01 — Start</strong><p>Create a checkout session.</p></div>
-      <div><strong>02 — Pay</strong><p>Complete payment on Nomod.</p></div>
+      <div><strong>02 — Pay</strong><p>Complete payment on Nomod or Stripe.</p></div>
       <div><strong>03 — Verify</strong><p>Check the result with your backend.</p></div>
     </section>
   </main>

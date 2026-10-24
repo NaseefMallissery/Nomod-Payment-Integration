@@ -5,6 +5,7 @@
   --paper: #fbfaf7;
   --green: #244d3c;
   --accent: #c97c51;
+  --stripe: #635bff;
 }
 
 * {
@@ -135,11 +136,17 @@ h1 em {
   text-align: right;
 }
 
-#buy-button {
+/* ---- Payment buttons ---- */
+.pay-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pay-btn {
   width: 100%;
   padding: 17px 20px;
-  margin-top: 20px;
-  background: var(--green);
   color: white;
   border: 0;
   display: flex;
@@ -147,13 +154,26 @@ h1 em {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  font-family: inherit;
 }
 
-#buy-button:hover {
+.pay-nomod {
+  background: var(--green);
+}
+
+.pay-nomod:hover {
   background: #183c2c;
 }
 
-#buy-button:disabled {
+.pay-stripe {
+  background: var(--stripe);
+}
+
+.pay-stripe:hover {
+  background: #4f46e5;
+}
+
+.pay-btn:disabled {
   opacity: 0.65;
   cursor: wait;
 }

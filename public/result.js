@@ -4,14 +4,21 @@ const statusNote = document.getElementById("status-note");
 const statusDetails = document.getElementById("status-details");
 
 const params = new URLSearchParams(window.location.search);
+
 const referenceId =
-  params.get("reference_id") ||
-  sessionStorage.getItem("nomodDemoReferenceId");
+  params.get("reference_id") || sessionStorage.getItem("demoReferenceId");
+
+// Which provider did the customer use? Defaults to Nomod for old links.
+const provider =
+  params.get("provider") || sessionStorage.getItem("demoProvider") || "nomod";
+
+const providerName = provider === "stripe" ? "Stripe" : "Nomod";
+const cancelledFlag = params.get("cancelled") === "1";
 
 const STATES = {
   paid: {
     title: "All done, thank you very much!",
-    text: "Your payment was successful and confirmed by Nomod.",
+    text: `Your payment was successful and confirmed by ${providerName}.`,
     note: "A receipt will be sent to the email you entered at checkout."
   },
   cancelled: {
@@ -26,7 +33,7 @@ const STATES = {
   },
   pending: {
     title: "Checking your payment…",
-    text: "Hang tight while we confirm the latest status with Nomod.",
+    text: `Hang tight while we confirm the latest status with ${providerName}.`,
     note: "This page updates automatically. Please don't close it."
   },
   unknown: {
@@ -54,20 +61,32 @@ function showStatus(status, message, amountText) {
   }
 }
 
+function statusUrl(checkoutId) {
+  const base =
+    provider === "stripe"
+      ? `/api/stripe/orders/${encodeURIComponent(referenceId)}/status`
+      : `/api/orders/${encodeURIComponent(referenceId)}/status`;
+
+  const query = new URLSearchParams({ checkoutId });
+  // Stripe only: tell the backend the customer pressed "back" on Stripe.
+  if (provider === "stripe" && cancelledFlag) query.set("cancelled", "1");
+
+  return `${base}?${query.toString()}`;
+}
+
 async function checkPaymentStatus() {
   if (!referenceId) {
     showStatus("unknown", "No order reference was found. Please start again.");
     return;
   }
 
-  const checkoutId = localStorage.getItem("nomodDemoCheckoutId") || "";
+  // Stripe puts the session id in the success URL; otherwise use the one the
+  // browser saved before redirecting.
+  const checkoutId =
+    params.get("session_id") || localStorage.getItem("demoCheckoutId") || "";
 
   try {
-    const response = await fetch(
-      `/api/orders/${encodeURIComponent(referenceId)}/status` +
-        `?checkoutId=${encodeURIComponent(checkoutId)}`
-    );
-
+    const response = await fetch(statusUrl(checkoutId));
     const data = await response.json();
 
     if (!response.ok) {
@@ -86,7 +105,7 @@ async function checkPaymentStatus() {
 
     showStatus(data.status, data.message, amountText);
 
-    // Still "created"? Check again instead of showing success too early.
+    // Still waiting? Check again instead of showing success too early.
     if (data.status === "pending") {
       setTimeout(checkPaymentStatus, 3000);
     }
